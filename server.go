@@ -49,7 +49,7 @@ func parsingHandler(next http.Handler) http.Handler {
 		if err != nil {
 			panic(&ErrorResponse{
 				StatusCode:   http.StatusBadRequest,
-				ErrorMessage: "Can't parse input json2222" + err.Error(),
+				ErrorMessage: "Can't parse input json" + err.Error(),
 			})
 		}
 		log.Println(request)
@@ -145,14 +145,13 @@ func PolicyIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func getLadonRequest(r *http.Request) *ladon.Request {
-	request, ok := context.Get(r, ladonRequestKey).(*ladon.Request)
-	if !ok {
-		panic(&ErrorResponse{
-			StatusCode:   http.StatusBadRequest,
-			ErrorMessage: "Can't parse input json",
-		})
+	if rv := context.Get(r, ladonRequestKey); rv != nil {
+		return rv.(*ladon.Request)
 	}
-	return request
+	panic(&ErrorResponse{
+		StatusCode:   http.StatusBadRequest,
+		ErrorMessage: "Can't cast to ladon request",
+	})
 }
 
 func CheckAccess(w http.ResponseWriter, r *http.Request) {
